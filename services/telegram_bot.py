@@ -8,6 +8,7 @@ Bot API'sini çağırır. Böylece PythonAnywhere gibi WSGI ortamlarında
 
 import os
 import json
+import html
 import urllib.request
 import urllib.error
 
@@ -16,10 +17,13 @@ from services.database import get_representatives
 API_BASE = "https://api.telegram.org/bot{token}/{method}"
 
 WELCOME_TEXT = (
-    "🎰 *Amiral Destek Merkezi*\n\n"
-    "Hoş geldiniz.\n\n"
-    "Lütfen görüşmek istediğiniz temsilciyi seçiniz."
+    "👋 <b>Amiral Destek Merkezi</b>'ne hoş geldiniz!\n\n"
+    "🎰 Size en hızlı şekilde yardımcı olmak için buradayız.\n\n"
+    "Görüşmek istediğiniz temsilciyi aşağıdan seçin 👇\n"
+    "🟢 Müsait   🔴 Meşgul"
 )
+
+BANNER_PATH = "/static/img/banner.png"
 
 
 def _token():
@@ -42,6 +46,16 @@ def _call(method, payload):
         return {"ok": False, "error": str(e)}
 
 
+def _banner_url(base_url):
+    """Panelin servis ettiği banner'ın tam public URL'i (https zorunlu)."""
+    if not base_url:
+        return None
+    base = base_url.rstrip("/")
+    if base.startswith("http://") and "127.0.0.1" not in base and "localhost" not in base:
+        base = "https://" + base[len("http://"):]
+    return base + BANNER_PATH
+
+
 def _start_keyboard():
     rows = []
     for rep in get_representatives():
@@ -53,12 +67,27 @@ def _start_keyboard():
     return {"inline_keyboard": rows}
 
 
-def _send_start(chat_id):
+def _send_start(chat_id, base_url=None):
+    keyboard = _start_keyboard()
+    banner = _banner_url(base_url)
+
+    # Önce banner'lı (sendPhoto) dene; olmazsa düz metne düş.
+    if banner:
+        res = _call("sendPhoto", {
+            "chat_id": chat_id,
+            "photo": banner,
+            "caption": WELCOME_TEXT,
+            "parse_mode": "HTML",
+            "reply_markup": keyboard,
+        })
+        if res.get("ok"):
+            return
+
     _call("sendMessage", {
         "chat_id": chat_id,
         "text": WELCOME_TEXT,
-        "parse_mode": "Markdown",
-        "reply_markup": _start_keyboard(),
+        "parse_mode": "HTML",
+        "reply_markup": keyboard,
     })
 
 
@@ -66,24 +95,27 @@ def _send_representative(chat_id, message_id, rep_id):
     rep = next((r for r in get_representatives() if r["id"] == rep_id), None)
     if rep is None:
         return
-    status_text = "🟢 Online" if rep["status"] else "🔴 Offline"
+    status_text = "🟢 <b>Müsait</b>" if rep["status"] else "🔴 <b>Meşgul</b>"
+    name = html.escape(rep["name"])
     text = (
-        f"👤 {rep['name']}\n\n{status_text}\n\n"
-        "Temsilci ile görüşmek için aşağıdaki butona tıklayabilirsiniz."
+        f"👤 <b>{name}</b>\n\n"
+        f"Durum: {status_text}\n\n"
+        "Aşağıdaki butondan WhatsApp üzerinden hemen yazabilirsiniz 👇"
     )
     keyboard = {"inline_keyboard": [[{
-        "text": "💬 WhatsApp'a Git",
+        "text": "💬 WhatsApp'tan Yaz",
         "url": f"https://wa.me/{rep['phone']}",
     }]]}
     _call("editMessageText", {
         "chat_id": chat_id,
         "message_id": message_id,
         "text": text,
+        "parse_mode": "HTML",
         "reply_markup": keyboard,
     })
 
 
-def handle_update(update):
+def handle_update(update, base_url=None):
     """Tek bir Telegram webhook update'ini işler."""
     if not isinstance(update, dict):
         return
@@ -93,7 +125,7 @@ def handle_update(update):
         text = msg.get("text", "") or ""
         chat_id = msg.get("chat", {}).get("id")
         if chat_id and text.startswith("/start"):
-            _send_start(chat_id)
+            _send_start(chat_id, base_url=base_url)
 
     elif "callback_query" in update:
         cq = update["callback_query"]

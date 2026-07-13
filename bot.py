@@ -38,14 +38,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     text = (
-        "🎰 *Amiral Destek Merkezi*\n\n"
-        "Hoş geldiniz.\n\n"
-        "Lütfen görüşmek istediğiniz temsilciyi seçiniz."
+        "👋 <b>Amiral Destek Merkezi</b>'ne hoş geldiniz!\n\n"
+        "🎰 Size en hızlı şekilde yardımcı olmak için buradayız.\n\n"
+        "Görüşmek istediğiniz temsilciyi aşağıdan seçin 👇\n"
+        "🟢 Müsait   🔴 Meşgul"
     )
 
     await update.message.reply_text(
         text=text,
-        parse_mode="Markdown",
+        parse_mode="HTML",
         reply_markup=reply_markup
     )
 

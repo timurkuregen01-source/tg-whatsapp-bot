@@ -215,7 +215,7 @@ def telegram_webhook(token):
     update = request.get_json(silent=True)
     if update:
         try:
-            handle_update(update)
+            handle_update(update, base_url=request.host_url)
         except Exception:
             # Telegram'ı gereksiz retry döngüsüne sokmamak için her zaman 200 dön.
             pass
