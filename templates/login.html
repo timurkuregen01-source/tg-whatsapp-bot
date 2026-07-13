@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Giriş · Amiral Panel</title>
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    />
+</head>
+<body>
+    <div class="auth">
+        <div class="auth__card">
+            <div class="auth__brand">
+                <div class="sidebar__logo">⚓</div>
+                <div>
+                    <div class="auth__title">Amiral Panel</div>
+                    <div class="auth__subtitle">Yönetim paneline giriş</div>
+                </div>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="auth__alert auth__alert--{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="post">
+                <div class="field">
+                    <label>Kullanıcı Adı</label>
+                    <input name="username" placeholder="admin" autofocus required />
+                </div>
+                <div class="field">
+                    <label>Parola</label>
+                    <input name="password" type="password" placeholder="••••••••" required />
+                </div>
+                <button type="submit" class="btn btn--primary btn--block">Giriş Yap</button>
+            </form>
+        </div>
+        <div class="auth__foot">Amiral Support Bot · v2.1.0</div>
+    </div>
+</body>
+</html>

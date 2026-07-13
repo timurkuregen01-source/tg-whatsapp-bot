@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Ayarlar · Amiral Panel{% endblock %}
+{% block page_title %}Ayarlar{% endblock %}
+{% block page_subtitle %}Sistem ayarları{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <div class="page-head__title">Ayarlar</div>
+        <div class="page-head__desc">Panel yapılandırması.</div>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="panel__head">
+        <div class="panel__title">Genel</div>
+    </div>
+    <div class="panel__body">
+        <div class="field">
+            <label>Bot Adı</label>
+            <input value="Amiral Support Bot" disabled />
+            <div class="field__hint">Bu alan ilerleyen sürümlerde düzenlenebilir olacak.</div>
+        </div>
+        <div class="field">
+            <label>Tema</label>
+            <select disabled>
+                <option>Koyu (Varsayılan)</option>
+            </select>
+        </div>
+        <div class="field">
+            <label>Sürüm</label>
+            <input value="v2.0.0" disabled />
+        </div>
+    </div>
+</div>
+{% endblock %}

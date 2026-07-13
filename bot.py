@@ -11,7 +11,6 @@ from telegram.ext import (
 )
 from dotenv import load_dotenv
 from services.database import init_db, get_representatives
-from services.database import init_db
 import os
 
 load_dotenv()

@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% set palette = [
+    'linear-gradient(135deg,#2563eb,#7c3aed)',
+    'linear-gradient(135deg,#22c55e,#16a34a)',
+    'linear-gradient(135deg,#f59e0b,#ef4444)',
+    'linear-gradient(135deg,#06b6d4,#2563eb)',
+    'linear-gradient(135deg,#ec4899,#8b5cf6)'
+] %}
+
+{% block title %}Temsilciler · Amiral Panel{% endblock %}
+{% block page_title %}Temsilciler{% endblock %}
+{% block page_subtitle %}Ekip yönetimi{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <div class="page-head__title">Temsilciler</div>
+        <div class="page-head__desc">
+            {{ stats.total }} temsilci · {{ stats.online }} online · {{ stats.offline }} offline
+        </div>
+    </div>
+    <button class="btn btn--primary" data-modal-open="addModal">
+        ➕ Yeni Temsilci
+    </button>
+</div>
+
+<div class="toolbar">
+    <div class="search">
+        <span class="search__icon">🔍</span>
+        <input id="repSearch" type="text" placeholder="İsim veya telefon ara..." />
+    </div>
+    <div class="filter-tabs">
+        <button class="filter-tab is-active" data-filter="all">Tümü</button>
+        <button class="filter-tab" data-filter="1">Online</button>
+        <button class="filter-tab" data-filter="0">Offline</button>
+    </div>
+</div>
+
+<p class="reorder-hint">💡 Kartları sürükleyerek sıralamayı değiştirebilir, duruma tıklayarak online/offline yapabilirsin.</p>
+
+<div class="rep-grid" id="repGrid">
+    {% for rep in representatives %}
+    <div
+        class="rep-card"
+        data-rep
+        data-id="{{ rep.id }}"
+        data-name="{{ rep.name }}"
+        data-phone="{{ rep.phone }}"
+        data-status="{{ rep.status }}"
+        draggable="true"
+    >
+        <div class="rep-card__head">
+            <div class="rep-card__top">
+                <div
+                    class="rep-card__avatar"
+                    style="background: {{ palette[rep.id % palette|length] }}"
+                >
+                    {{ rep.name[0] | upper }}
+                </div>
+                <div>
+                    <div class="rep-card__name">{{ rep.name }}</div>
+                    <div class="rep-card__phone">+{{ rep.phone }}</div>
+                </div>
+            </div>
+            <span class="drag-handle" title="Sürükle-bırak ile sırala">⠿</span>
+        </div>
+
+        <button
+            type="button"
+            class="badge badge--toggle {{ 'badge--online' if rep.status == 1 else 'badge--offline' }}"
+            data-toggle
+            data-id="{{ rep.id }}"
+            title="Duruma tıkla: online/offline"
+        >
+            <span class="badge__dot"></span>
+            <span class="badge__label">{{ 'Online' if rep.status == 1 else 'Offline' }}</span>
+        </button>
+
+        <div class="rep-card__actions">
+            <a
+                href="https://wa.me/{{ rep.phone }}"
+                target="_blank"
+                rel="noopener"
+                draggable="false"
+                class="btn btn--success btn--sm"
+            >💬 WhatsApp</a>
+            <button
+                class="btn btn--ghost btn--sm"
+                data-edit
+                data-id="{{ rep.id }}"
+                data-name="{{ rep.name }}"
+                data-phone="{{ rep.phone }}"
+                data-status="{{ rep.status }}"
+            >✏️ Düzenle</button>
+            <button
+                class="btn btn--danger btn--sm"
+                data-delete
+                data-id="{{ rep.id }}"
+                data-name="{{ rep.name }}"
+            >🗑️</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="empty is-hidden" id="repEmpty">
+    <div class="empty__icon">🔍</div>
+    <div>Sonuç bulunamadı.</div>
+</div>
+
+{% if not representatives %}
+<div class="empty">
+    <div class="empty__icon">📭</div>
+    <div>Henüz temsilci eklenmemiş. Yukarıdan "Yeni Temsilci" ile başla.</div>
+</div>
+{% endif %}
+
+<!-- ADD MODAL -->
+<div class="modal" id="addModal">
+    <div class="modal__overlay" data-modal-close></div>
+    <div class="modal__dialog">
+        <form action="{{ url_for('representatives_add') }}" method="post">
+            <div class="modal__head">
+                <div class="modal__title">Yeni Temsilci</div>
+                <button type="button" class="modal__close" data-modal-close>&times;</button>
+            </div>
+            <div class="modal__body">
+                <div class="field">
+                    <label>İsim</label>
+                    <input name="name" placeholder="Örn. Ahmet Yılmaz" required />
+                </div>
+                <div class="field">
+                    <label>WhatsApp Numarası</label>
+                    <input name="phone" placeholder="905551112233" required />
+                    <div class="field__hint">Ülke kodu ile, boşluksuz. Örn: 905551112233</div>
+                </div>
+                <div class="field">
+                    <label>Durum</label>
+                    <select name="status">
+                        <option value="1">🟢 Online</option>
+                        <option value="0">🔴 Offline</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal__foot">
+                <button type="button" class="btn btn--ghost" data-modal-close>Vazgeç</button>
+                <button type="submit" class="btn btn--primary">Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal" id="editModal">
+    <div class="modal__overlay" data-modal-close></div>
+    <div class="modal__dialog">
+        <form id="editForm" action="" method="post">
+            <div class="modal__head">
+                <div class="modal__title">Temsilci Düzenle</div>
+                <button type="button" class="modal__close" data-modal-close>&times;</button>
+            </div>
+            <div class="modal__body">
+                <div class="field">
+                    <label>İsim</label>
+                    <input name="name" required />
+                </div>
+                <div class="field">
+                    <label>WhatsApp Numarası</label>
+                    <input name="phone" required />
+                </div>
+                <div class="field">
+                    <label>Durum</label>
+                    <select name="status">
+                        <option value="1">🟢 Online</option>
+                        <option value="0">🔴 Offline</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal__foot">
+                <button type="button" class="btn btn--ghost" data-modal-close>Vazgeç</button>
+                <button type="submit" class="btn btn--primary">Güncelle</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal" id="deleteModal">
+    <div class="modal__overlay" data-modal-close></div>
+    <div class="modal__dialog">
+        <form id="deleteForm" action="" method="post">
+            <div class="modal__head">
+                <div class="modal__title">Temsilciyi Sil</div>
+                <button type="button" class="modal__close" data-modal-close>&times;</button>
+            </div>
+            <div class="modal__body">
+                <p><strong id="deleteName"></strong> adlı temsilci kalıcı olarak silinecek. Emin misin?</p>
+            </div>
+            <div class="modal__foot">
+                <button type="button" class="btn btn--ghost" data-modal-close>Vazgeç</button>
+                <button type="submit" class="btn btn--danger">Evet, Sil</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

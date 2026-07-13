@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Amiral Panel{% endblock %}</title>
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    />
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar__brand">
+                <div class="sidebar__logo">⚓</div>
+                <div>
+                    <div class="sidebar__title">Amiral</div>
+                    <div class="sidebar__subtitle">Support Panel</div>
+                </div>
+            </div>
+
+            <nav class="nav">
+                <span class="nav__label">Menü</span>
+                <a
+                    href="{{ url_for('dashboard') }}"
+                    class="nav__item {{ 'is-active' if active == 'dashboard' }}"
+                >
+                    <span class="nav__icon">🏠</span> Dashboard
+                </a>
+                <a
+                    href="{{ url_for('representatives') }}"
+                    class="nav__item {{ 'is-active' if active == 'representatives' }}"
+                >
+                    <span class="nav__icon">👥</span> Temsilciler
+                </a>
+                <a
+                    href="{{ url_for('settings') }}"
+                    class="nav__item {{ 'is-active' if active == 'settings' }}"
+                >
+                    <span class="nav__icon">⚙️</span> Ayarlar
+                </a>
+            </nav>
+
+            <div class="nav__footer">
+                <a href="{{ url_for('logout') }}" class="nav__item nav__item--danger">
+                    <span class="nav__icon">🚪</span> Çıkış
+                </a>
+            </div>
+        </aside>
+
+        <div class="overlay-backdrop" id="sidebarBackdrop"></div>
+
+        <!-- Main -->
+        <div class="main">
+            <header class="topbar">
+                <div class="topbar__left">
+                    <button class="hamburger" id="hamburger" aria-label="Menü">☰</button>
+                    <div>
+                        <div class="topbar__title">{% block page_title %}Dashboard{% endblock %}</div>
+                        <div class="topbar__subtitle">{% block page_subtitle %}{% endblock %}</div>
+                    </div>
+                </div>
+                <div class="topbar__right">
+                    <div class="avatar-chip">
+                        <div class="avatar-chip__img">
+                            {{ (current_user or 'A')[0] | upper }}
+                        </div>
+                        <div class="avatar-chip__name">{{ current_user or 'Admin' }}</div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="content">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Flash toasts -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="toasts">
+                {% for category, message in messages %}
+                    <div class="toast toast--{{ category }}">
+                        <span class="toast__icon">
+                            {{ '✅' if category == 'success' else '⚠️' }}
+                        </span>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% set palette = [
+    'linear-gradient(135deg,#2563eb,#7c3aed)',
+    'linear-gradient(135deg,#22c55e,#16a34a)',
+    'linear-gradient(135deg,#f59e0b,#ef4444)',
+    'linear-gradient(135deg,#06b6d4,#2563eb)',
+    'linear-gradient(135deg,#ec4899,#8b5cf6)'
+] %}
+
+{% block title %}Dashboard · Amiral Panel{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Genel bakış ve özet{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div>
+        <div class="page-head__title">Hoş geldin, Admin 👋</div>
+        <div class="page-head__desc">Destek ekibinin anlık durumu.</div>
+    </div>
+    <a href="{{ url_for('representatives') }}" class="btn btn--primary">
+        👥 Temsilcileri Yönet
+    </a>
+</div>
+
+<div class="stat-grid">
+    <div class="stat">
+        <div class="stat__icon stat__icon--blue">👥</div>
+        <div>
+            <div class="stat__value">{{ stats.total }}</div>
+            <div class="stat__label">Toplam Temsilci</div>
+        </div>
+    </div>
+    <div class="stat">
+        <div class="stat__icon stat__icon--green">🟢</div>
+        <div>
+            <div class="stat__value">{{ stats.online }}</div>
+            <div class="stat__label">Online</div>
+        </div>
+    </div>
+    <div class="stat">
+        <div class="stat__icon stat__icon--red">🔴</div>
+        <div>
+            <div class="stat__value">{{ stats.offline }}</div>
+            <div class="stat__label">Offline</div>
+        </div>
+    </div>
+    <div class="stat">
+        <div class="stat__icon stat__icon--amber">⚡</div>
+        <div>
+            <div class="stat__value">
+                {{ ((stats.online / stats.total) * 100) | round | int if stats.total else 0 }}%
+            </div>
+            <div class="stat__label">Aktiflik Oranı</div>
+        </div>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="panel__head">
+        <div class="panel__title">Son Eklenen Temsilciler</div>
+        <a href="{{ url_for('representatives') }}" class="btn btn--ghost btn--sm">
+            Tümünü Gör
+        </a>
+    </div>
+    <div class="panel__body">
+        {% if recent %}
+        <div class="list">
+            {% for rep in recent %}
+            <div class="list__row">
+                <div
+                    class="list__avatar"
+                    style="background: {{ palette[rep.id % palette|length] }}"
+                >
+                    {{ rep.name[0] | upper }}
+                </div>
+                <div>
+                    <div class="list__name">{{ rep.name }}</div>
+                    <div class="list__meta">+{{ rep.phone }}</div>
+                </div>
+                <div class="list__spacer"></div>
+                {% if rep.status == 1 %}
+                <span class="badge badge--online"><span class="badge__dot"></span> Online</span>
+                {% else %}
+                <span class="badge badge--offline"><span class="badge__dot"></span> Offline</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">
+            <div class="empty__icon">📭</div>
+            <div>Henüz temsilci yok. Temsilciler sayfasından ekleyebilirsin.</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
