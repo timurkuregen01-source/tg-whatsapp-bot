@@ -24,8 +24,10 @@ from services.database import (
     toggle_status,
     reorder_representatives,
 )
+from services.telegram_bot import handle_update
 
-load_dotenv()
+# .env'i panel.py'nin yanından kesin yolla yükle (PythonAnywhere WSGI için önemli).
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
 app = Flask(__name__)
 app.secret_key = os.getenv("PANEL_SECRET_KEY", "amiral-dev-secret")
@@ -201,6 +203,23 @@ def representatives_reorder():
 @login_required
 def settings():
     return render_template("settings.html", active="settings")
+
+
+# --------------------------------------------------------------- telegram ----
+# Telegram webhook'u — HERKESE AÇIK olmalı (Telegram çağırır), path'teki token
+# ile korunur. Bot ile panel aynı process/DB'yi paylaşır.
+@app.post("/webhook/<token>")
+def telegram_webhook(token):
+    if token != os.getenv("BOT_TOKEN", ""):
+        return "forbidden", 403
+    update = request.get_json(silent=True)
+    if update:
+        try:
+            handle_update(update)
+        except Exception:
+            # Telegram'ı gereksiz retry döngüsüne sokmamak için her zaman 200 dön.
+            pass
+    return "ok"
 
 
 if __name__ == "__main__":

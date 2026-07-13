@@ -33,15 +33,20 @@ yönetimi web panelinden yapılır.
 
 ---
 
-## 🔜 v3.0.0 — Canlıya Alma (Production) — EN SON, SAĞLAM
+## 🔄 v3.0.0 — Canlıya Alma (PythonAnywhere · ücretsiz · kartsız · 7/24)
 
-- [ ] Paneli **Render**'a deploy → public link (`render.yaml` hazır)
-- [ ] SQLite → **PostgreSQL** migration (panel + bot aynı DB'yi paylaşsın)
-- [ ] Bot: polling → **webhook** moduna geçiş, 7/24 çalışma
-- [ ] Production `.env` (güçlü SECRET_KEY, admin parolası)
+Kod tarafı hazır, geriye tek manuel adım kaldı:
 
-> ⚠️ **Netlify değil.** Netlify statik site barındırır; Flask + SQLite + bot çalışmaz.
-> Doğru adres Render / Railway. Detay [README.md](README.md).
+- [x] Bot **webhook** moduna geçti (`services/telegram_bot.py` + panel `/webhook/<token>`)
+- [x] Bot + panel **tek uygulama** → aynı SQLite'ı paylaşıyor (bulut "iki servis" sorunu çözüldü)
+- [x] `set_webhook.py` (webhook ayarla/sil/göster) + PythonAnywhere WSGI hazır
+- [ ] **Senin adımın:** PythonAnywhere hesabı aç → dosyaları yükle → web app kur → webhook'u ayarla
+      (adım adım [README.md](README.md))
+- [ ] Production `.env` (güçlü PANEL_SECRET_KEY, gerçek admin parolası)
+
+> ✅ PythonAnywhere free: kart yok, 7/24 açık. SQLite tek app'te sorunsuz.
+> Netlify Flask çalıştıramaz; Render kart ister. (Render'ı yine de denemek istersen
+> `render.yaml` repoda duruyor.) İleride yük artarsa PostgreSQL'e geçiş opsiyonel.
 
 ---
 
