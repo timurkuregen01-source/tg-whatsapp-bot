@@ -33,6 +33,9 @@ app.secret_key = os.getenv("PANEL_SECRET_KEY", "amiral-dev-secret")
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
 ADMIN_PASSWORD_HASH = os.getenv("ADMIN_PASSWORD_HASH", "")
 
+# Veritabanını import anında hazırla — gunicorn/production'da __main__ çalışmaz.
+init_db()
+
 
 # --------------------------------------------------------------------- auth ---
 def login_required(view):
@@ -201,5 +204,4 @@ def settings():
 
 
 if __name__ == "__main__":
-    init_db()
     app.run(debug=True)
