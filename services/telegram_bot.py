@@ -149,7 +149,7 @@ def _send_start(chat_id, base_url=None):
     })
 
 
-def _send_representative(chat_id, message_id, rep_id):
+def _send_representative(chat_id, rep_id):
     rep = next((r for r in get_representatives() if r["id"] == rep_id), None)
     if rep is None:
         return
@@ -164,9 +164,9 @@ def _send_representative(chat_id, message_id, rep_id):
         "text": "💬 WhatsApp'tan Yaz",
         "url": f"https://wa.me/{rep['phone']}",
     }]]}
-    _call("editMessageText", {
+    # Yeni mesaj gönder (menü fotoğraf mesajı olduğu için edit yerine send).
+    _call("sendMessage", {
         "chat_id": chat_id,
-        "message_id": message_id,
         "text": text,
         "parse_mode": "HTML",
         "reply_markup": keyboard,
@@ -191,13 +191,12 @@ def handle_update(update, base_url=None):
         data = cq.get("data", "") or ""
         msg = cq.get("message", {})
         chat_id = msg.get("chat", {}).get("id")
-        message_id = msg.get("message_id")
-        if data.startswith("rep_") and chat_id and message_id:
+        if data.startswith("rep_") and chat_id:
             try:
                 rep_id = int(data.split("_")[1])
             except (IndexError, ValueError):
                 return
-            _send_representative(chat_id, message_id, rep_id)
+            _send_representative(chat_id, rep_id)
 
 
 # ----------------------------------------------------------- webhook yönetimi -
