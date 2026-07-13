@@ -49,20 +49,16 @@
         data-status="{{ rep.status }}"
         draggable="true"
     >
-        <div class="rep-card__head">
-            <div class="rep-card__top">
-                <div
-                    class="rep-card__avatar"
-                    style="background: {{ palette[rep.id % palette|length] }}"
-                >
-                    {{ rep.name[0] | upper }}
-                </div>
-                <div>
-                    <div class="rep-card__name">{{ rep.name }}</div>
-                    <div class="rep-card__phone">+{{ rep.phone }}</div>
-                </div>
-            </div>
-            <span class="drag-handle" title="Sürükle-bırak ile sırala">⠿</span>
+        <span class="drag-handle" title="Sürükle-bırak ile sırala">⠿</span>
+        <div
+            class="rep-card__avatar"
+            style="background: {{ palette[rep.id % palette|length] }}"
+        >
+            {{ rep.name[0] | upper }}
+        </div>
+        <div class="rep-card__info">
+            <div class="rep-card__name">{{ rep.name }}</div>
+            <div class="rep-card__phone">+{{ rep.phone }}</div>
         </div>
 
         <button
